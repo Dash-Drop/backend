@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 
+import generateFileId from '../helpers/generateFileId';
 import { getFiles, getFileById, createFile } from '../db/files';
 
 export const getAll = async (req: Request, res: Response) => {
@@ -34,17 +35,17 @@ export const getFile = async (req: Request, res: Response) => {
 
 export const createNewFile = async (req: Request, res: Response) => {
   try {
-    const { id, path } = req.body;
+    const { path } = req.body;
 
     console.log(req.body);
 
-    if (!id) throw new Error("Property \"id\" is required.");
     if (!path) throw new Error("property \"path\" is required.");
 
     // TODO: Check if created ID already exists
+    const newFileId = generateFileId();
 
     const newFile = await createFile({
-      id,
+      id: newFileId,
       path
     });
 
