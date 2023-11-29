@@ -1,5 +1,7 @@
 CREATE DATABASE dashdrop;
 
+\c dashdrop;
+
 CREATE TABLE files (
     id serial PRIMARY KEY,
     file_id text UNIQUE NOT NULL,
