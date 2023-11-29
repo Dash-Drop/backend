@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import generateFileId from '../helpers/generateFileId';
-import { getFiles} from '../db/files';
+import { getFiles, getByFileId } from '../db/files';
 
 export const getAll = async (req: Request, res: Response) => {
   try {
@@ -17,21 +17,21 @@ export const getAll = async (req: Request, res: Response) => {
   }
 }
 
-// export const getFile = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
+export const getFile = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
 
-//     const file = await getFileById(id);
+    const file = await getByFileId(id);
 
-//     if (!file) throw new Error("File not found.");
+    if (!file) throw new Error("File not found.");
 
-//     return res.status(200).json(file).end();
-//   } catch (error) {
-//     console.log(error);
+    return res.status(200).json(file).end();
+  } catch (error) {
+    console.log(error);
 
-//     return res.sendStatus(400);
-//   }
-// }
+    return res.sendStatus(400);
+  }
+}
 
 // export const createNewFile = async (req: Request, res: Response) => {
 //   try {

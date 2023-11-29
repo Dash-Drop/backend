@@ -15,4 +15,3 @@ INSERT INTO files (file_id, path) VALUES ('SJS_lo1h', '/s3/path/4');
 INSERT INTO files (file_id, path) VALUES ('to5XhrbG', '/s3/path/5');
 
 SELECT * FROM files;
-
