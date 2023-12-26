@@ -1,19 +1,32 @@
 import { Request, Response } from 'express';
 
-import generateFileId from '../helpers/generateFileId';
-import { getFiles, getByFileId } from '../db/files';
+import { FileService } from '../services/filesService';
+
+type CreateFileDto = {
+  name: string;
+  expirationHours: number;
+}
+
+type OutputFileDto = {
+  id: string;
+  name: string;
+  path: string;
+  createdAt: string;
+  expirationDate: string;
+}
 
 export const getAll = async (req: Request, res: Response) => {
   try {
-    const files = await getFiles();
-
-    // if (!files) throw new Error("File not found.");
+    const fs = new FileService();
+    const files = await fs.getFiles();
 
     return res.status(200).json(files).end();
-  } catch (error) {
-    console.log(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return res.status(400).send(error.message);
+    }
 
-    return res.sendStatus(400);
+    return res.status(500).end();
   }
 }
 
@@ -21,38 +34,48 @@ export const getFile = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const file = await getByFileId(id);
+    const fs = new FileService();
+
+    const file = await fs.getFileById(id);
 
     if (!file) throw new Error("File not found.");
 
     return res.status(200).json(file).end();
-  } catch (error) {
-    console.log(error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return res.status(400).send(error.message);
+    }
 
-    return res.sendStatus(400);
+    return res.status(500).end();
   }
 }
 
-// export const createNewFile = async (req: Request, res: Response) => {
-//   try {
-//     const { path } = req.body;
+export const createNewFile = async (req: Request, res: Response) => {
+  try {
+    // TODO: zod validation
+    const { name, expirationHours } = req.body as CreateFileDto;
 
-//     console.log(req.body);
+    if (!name) throw new Error("Property \"name\" is required.");
+    if (!expirationHours) throw new Error("Property \"expirationHours\" is required.");
 
-//     if (!path) throw new Error("property \"path\" is required.");
+    const fs = new FileService();
 
-//     // TODO: Check if created ID already exists
-//     const newFileId = generateFileId();
+    const createdFile = await fs.createNewFile(name, expirationHours);
 
-//     const newFile = await createFile({
-//       id: newFileId,
-//       path
-//     });
+    const createdFileDto: OutputFileDto = {
+      id: createdFile.id,
+      name: createdFile.name,
+      path: createdFile.path,
+      createdAt: createdFile.createdAt.toISOString(),
+      expirationDate: createdFile.expirationDate.toISOString(),
+    }
 
-//     return res.status(201).json(newFile).end();
-//   } catch (error) {
-//     console.log(error);
+    return res.status(201).json(createdFileDto).end();
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return res.status(400).send(error.message);
+    }
 
-//     return res.sendStatus(400);
-//   }
-// }
+    return res.status(500).end();
+  }
+}

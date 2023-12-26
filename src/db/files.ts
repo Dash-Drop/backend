@@ -1,23 +1,28 @@
 import sql from './db';
 
+type CreateFileParams = {
+  id: string;
+  name: string;
+  path: string;
+  createdAt: string;
+  expirationDate: string;
+}
+
 const tableName = process.env.TABLE_FILES;
 
-console.log(tableName);
 
 export const getFiles = async () => {
   const files = await sql`
     SELECT * FROM ${sql(tableName)};
   `;
 
-  return files
+  return files;
 }
 
 export const getByFileId = async (fileId: string) => {
-  console.log(fileId);
-
   const file = await sql`
     SELECT * FROM ${sql(tableName)}
-    WHERE file_id = ${fileId};
+    WHERE id = ${fileId};
   `;
 
   if (!file) {
@@ -25,4 +30,15 @@ export const getByFileId = async (fileId: string) => {
   };
 
   return file[0];
+}
+
+export const createFile = async ({id, name, path, createdAt, expirationDate}: CreateFileParams) => {
+  const test = await sql`
+  INSERT INTO files (id, name, path, createdAt, expirationDate)
+    VALUES (${id}, ${name}, ${path}, ${createdAt}, ${expirationDate});
+  `;
+
+  if (!test) {
+    throw new Error("Error creating new file");
+  }
 }
