@@ -1,6 +1,6 @@
 import sql from './db';
 
-type CreateFileParams = {
+type FileDAO = {
   id: string;
   name: string;
   path: string;
@@ -20,19 +20,21 @@ export const getFiles = async () => {
 }
 
 export const getByFileId = async (fileId: string) => {
-  const file = await sql`
+  const fileRows = await sql<FileDAO[]>`
     SELECT * FROM ${sql(tableName)}
     WHERE id = ${fileId};
   `;
 
-  if (!file) {
+  if (!fileRows) {
     throw new Error("File not found");
   };
 
-  return file[0];
+  const file = fileRows[0];
+
+  return file;
 }
 
-export const createFile = async ({id, name, path, createdAt, expirationDate}: CreateFileParams) => {
+export const createFile = async ({id, name, path, createdAt, expirationDate}: FileDAO) => {
   const test = await sql`
   INSERT INTO files (id, name, path, createdAt, expirationDate)
     VALUES (${id}, ${name}, ${path}, ${createdAt}, ${expirationDate});

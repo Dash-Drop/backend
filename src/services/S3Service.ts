@@ -1,20 +1,23 @@
-import * as aws from "aws-sdk"; 
+import { GetObjectCommand, ListObjectsCommand, S3Client } from "@aws-sdk/client-s3"; 
 
-const s3 = new aws.S3();
+const s3Region = process.env.S3_REGION;
 const bucketName = process.env.S3_BUCKET;
+
+const s3 = new S3Client({
+  region: s3Region
+});
 export class S3Service {
-  async getFileById() {
+  async getFileById(id: string) {
+    const file = await s3.send(new GetObjectCommand({Bucket: bucketName, Key: id}));
+
+    console.log(await file.Body.transformToByteArray());
   }
 
   async uploadFile() {
     // UPLOAD FILE TO S3
-    s3.listObjects({ Bucket: bucketName }, (err, data) => {
-      if (err) {
-        console.log("Error", err);
-      } else {
-        console.log("Success", data);
-      }
-    });
+    const response = await s3.send(new ListObjectsCommand({ Bucket: bucketName }));
+
+    console.log(response);
 
     // GET S3 FILE PATH
     const mockFilePath = `/s3/${Math.floor(Math.random() * (1000 - 0))}`;

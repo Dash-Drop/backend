@@ -16,6 +16,7 @@ export class FileService {
 
   async getFileById(id: string) {
     const file = await getByFileId(id);
+    const s3File = await s3Service.getFileById(file.name);
 
     return file;
   }
