@@ -1,7 +1,9 @@
 import { File } from '../entities/File';
 import { nanoid } from 'nanoid';
 import { createFile, getByFileId, getFiles } from '../db/files';
-import { uploadFileService } from './S3Service';
+import { S3Service } from './S3Service';
+
+const s3Service = new S3Service();
 
 export class FileService {
   // constructor(private readonly db: DB, private readonly s3Client: S3Client) {}
@@ -19,7 +21,7 @@ export class FileService {
   }
 
   async createNewFile(name: string, expirationHours: number) {
-    const filePath = uploadFileService();
+    const filePath = await s3Service.uploadFile();
 
     let newFileId;
     let newFileIdAlreadyExists = false;
