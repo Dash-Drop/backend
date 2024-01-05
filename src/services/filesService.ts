@@ -1,7 +1,8 @@
-import { File } from '../entities/File';
+import { File as FileEntity } from '../entities/File';
 import { nanoid } from 'nanoid';
 import { createFile, getByFileId, getFiles } from '../db/files';
 import { S3Service } from './S3Service';
+import { MultipartFile } from 'controllers/files';
 
 const s3Service = new S3Service();
 
@@ -16,14 +17,13 @@ export class FileService {
 
   async getFileById(id: string) {
     const file = await getByFileId(id);
-    const s3File = await s3Service.getFileById(file.name);
+    const s3File = await s3Service.getFileByKey(file.name);
 
     return file;
   }
 
-  async createNewFile(name: string, expirationHours: number) {
-    const filePath = await s3Service.uploadFile();
-
+  async createNewFile(name: string, expirationHours: number, file: MultipartFile) {
+    let filePath: string;
     let newFileId;
     let newFileIdAlreadyExists = false;
     
@@ -34,11 +34,17 @@ export class FileService {
       if (file) newFileIdAlreadyExists = true;
     } while (newFileIdAlreadyExists)
 
+    try {
+      filePath = await s3Service.uploadFile(file.path, newFileId, file.type);
+    } catch(e) {
+      throw new Error("Error uploading file to S3.")
+    }
+
     const createdAt = new Date(Date.now());
     const expirationDate = new Date(createdAt);
     expirationDate.setHours(createdAt.getHours() + expirationHours);
 
-    const newFile = new File(newFileId, name, filePath, createdAt, expirationDate);
+    const newFile = new FileEntity(newFileId, name, filePath, createdAt, expirationDate);
 
     await createFile({
       id: newFileId,

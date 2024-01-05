@@ -1,6 +1,8 @@
+import os from 'node:os';
 import express from 'express';
 import http from 'http';
 import bodyParser from 'body-parser';
+import formData from 'express-form-data';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
@@ -18,9 +20,17 @@ app.use(cors({
   origin: true,
 }));
 
+const formDataParserOptions = {
+  uploadDir: os.tmpdir(),
+  autoClean: true
+};
+
+
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(formData.parse(formDataParserOptions));
+app.use(formData.union());
 
 const server = http.createServer(app);
 

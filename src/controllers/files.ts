@@ -2,9 +2,16 @@ import { Request, Response } from 'express';
 
 import { FileService } from '../services/filesService';
 
+export type MultipartFile = {
+  originalFileName: string;
+  path: string;
+  type: string;
+}
+
 type CreateFileDto = {
   name: string;
   expirationHours: number;
+  file: MultipartFile;
 }
 
 type OutputFileDto = {
@@ -53,14 +60,17 @@ export const getFile = async (req: Request, res: Response) => {
 export const createNewFile = async (req: Request, res: Response) => {
   try {
     // TODO: zod validation
-    const { name, expirationHours } = req.body as CreateFileDto;
+    const { name, expirationHours, file } = req.body as CreateFileDto;
 
     if (!name) throw new Error("Property \"name\" is required.");
     if (!expirationHours) throw new Error("Property \"expirationHours\" is required.");
+    if (!file) throw new Error("Property \"file\" is required.");
 
-    const fs = new FileService();
+    console.log(file);
 
-    const createdFile = await fs.createNewFile(name, expirationHours);
+    const fileService = new FileService();
+
+    const createdFile = await fileService.createNewFile(name, expirationHours, file);
 
     const createdFileDto: OutputFileDto = {
       id: createdFile.id,
