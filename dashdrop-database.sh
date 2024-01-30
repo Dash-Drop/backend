@@ -2,6 +2,8 @@
 
 #password = 1234
 
+export $(cat .env)
+
 sudo apt install postgresql-client-common
 sudo apt install postgresql-client-14
 
