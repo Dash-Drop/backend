@@ -56,4 +56,12 @@ export class FileService {
 
     return newFile;
   }
+
+  async downloadFile(id: string) {
+    const downloadFileUrl = await s3Service.getDownloadSignedUrlByKey(id);
+
+    return {
+      downloadUrl: downloadFileUrl,
+    }
+  }
 }

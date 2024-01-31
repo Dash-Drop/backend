@@ -1,6 +1,7 @@
 import fs from 'node:fs';
-import { GetObjectCommand, ListObjectsCommand, S3Client, PutObjectCommand } from "@aws-sdk/client-s3"; 
+import { GetObjectCommand, S3Client, HeadObjectCommand } from "@aws-sdk/client-s3"; 
 import { Upload } from "@aws-sdk/lib-storage"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Region = process.env.S3_REGION;
 const bucketName = process.env.S3_BUCKET;
@@ -38,5 +39,16 @@ export class S3Service {
     await uploadCommand.done();
 
     return `s3://${bucketName}/${key}`;
+  }
+
+  async getDownloadSignedUrlByKey(key: string) {
+    const headObjectCommand = new HeadObjectCommand({Bucket: bucketName, Key: key});
+    
+    await s3Client.send(headObjectCommand);
+    
+    const getObjectCommand = new GetObjectCommand({Bucket: bucketName, Key: key});
+    const downloadUrl = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 3600,  } );
+
+    return downloadUrl;
   }
 }

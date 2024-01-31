@@ -89,3 +89,18 @@ export const createNewFile = async (req: Request, res: Response) => {
     return res.status(500).end();
   }
 }
+
+export const donwloadFile = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const fs = new FileService();
+
+    const downloadFileDTO = await fs.downloadFile(id);
+
+    return res.status(200).json(downloadFileDTO).end();
+  } catch (error) {
+    console.log(error);
+    return res.status(500).end();
+  }
+}
