@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { GetObjectCommand, S3Client, HeadObjectCommand } from "@aws-sdk/client-s3"; 
+import { GetObjectCommand, S3Client , HeadObjectCommand } from "@aws-sdk/client-s3"; 
 import { Upload } from "@aws-sdk/lib-storage"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -47,7 +47,12 @@ export class S3Service {
     await s3Client.send(headObjectCommand);
     
     const getObjectCommand = new GetObjectCommand({Bucket: bucketName, Key: key});
-    const downloadUrl = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 3600,  } );
+    const downloadUrl = await getSignedUrl(
+      s3Client,
+      getObjectCommand,
+      {
+        expiresIn: 3600,      
+      });
 
     return downloadUrl;
   }
